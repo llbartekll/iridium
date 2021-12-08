@@ -4,17 +4,17 @@ import Combine
 import WalletConnectUtils
 
 
-class WakuNetworkRelay {
+public final class WakuNetworkRelay {
     private typealias SubscriptionRequest = JSONRPCRequest<RelayJSONRPC.SubscriptionParams>
     private typealias SubscriptionResponse = JSONRPCResponse<String>
     private typealias RequestAcknowledgement = JSONRPCResponse<Bool>
     private let concurrentQueue = DispatchQueue(label: "com.walletconnect.sdk.waku.relay",
                                                 attributes: .concurrent)
-    var onConnect: (() -> ())?
+    public var onConnect: (() -> ())?
     
-    var onMessage: ((String, String) -> ())?
+    public var onMessage: ((String, String) -> ())?
     private var transport: JSONRPCTransporting
-    var subscriptions: [String: String] = [:]
+    private var subscriptions: [String: String] = [:]
     private let defaultTtl = 6*Time.hour
 
     private var subscriptionResponsePublisher: AnyPublisher<JSONRPCResponse<String>, Never> {
@@ -25,14 +25,20 @@ class WakuNetworkRelay {
         requestAcknowledgePublisherSubject.eraseToAnyPublisher()
     }
     private let requestAcknowledgePublisherSubject = PassthroughSubject<JSONRPCResponse<Bool>, Never>()
-    let logger: ConsoleLogger
+    private let logger: ConsoleLogger
+    
     init(transport: JSONRPCTransporting,
          logger: ConsoleLogger) {
         self.logger = logger
         self.transport = transport
         setUpBindings()
     }
-    @discardableResult func publish(topic: String, payload: String, completion: @escaping ((Error?) -> ())) -> Int64 {
+    
+    public convenience init(logger: ConsoleLogger, url: URL) {
+        self.init(transport: JSONRPCTransport(url: url), logger: logger)
+    }
+    
+    @discardableResult public func publish(topic: String, payload: String, completion: @escaping ((Error?) -> ())) -> Int64 {
         let params = RelayJSONRPC.PublishParams(topic: topic, message: payload, ttl: defaultTtl)
         let request = JSONRPCRequest<RelayJSONRPC.PublishParams>(method: RelayJSONRPC.Method.publish.rawValue, params: params)
         let requestJson = try! request.json()
@@ -55,7 +61,7 @@ class WakuNetworkRelay {
         return request.id
     }
     
-    @discardableResult func subscribe(topic: String, completion: @escaping (Error?) -> ()) -> Int64 {
+    @discardableResult public func subscribe(topic: String, completion: @escaping (Error?) -> ()) -> Int64 {
         logger.debug("waku: Subscribing on Topic: \(topic)")
         let params = RelayJSONRPC.SubscribeParams(topic: topic)
         let request = JSONRPCRequest(method: RelayJSONRPC.Method.subscribe.rawValue, params: params)
@@ -80,7 +86,7 @@ class WakuNetworkRelay {
         return request.id
     }
     
-    @discardableResult func unsubscribe(topic: String, completion: @escaping ((Error?) -> ())) -> Int64? {
+    @discardableResult public func unsubscribe(topic: String, completion: @escaping ((Error?) -> ())) -> Int64? {
         guard let subscriptionId = subscriptions[topic] else {
 //            completion(WalletConnectError.internal(.subscriptionIdNotFound))
             //TODO - complete with iridium error

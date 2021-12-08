@@ -71,7 +71,7 @@ final class JSONRPCTransport: NSObject, JSONRPCTransporting {
 
 extension JSONRPCTransport: URLSessionWebSocketDelegate {
     
-    public func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         print("Web Socket did connect")
         onConnect?()
     }
