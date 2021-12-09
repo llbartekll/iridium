@@ -38,6 +38,14 @@ public final class WakuNetworkRelay {
         self.init(transport: JSONRPCTransport(url: url), logger: logger)
     }
     
+    public func connect() {
+        transport.connect()
+    }
+    
+    public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode) {
+        transport.disconnect(closeCode: closeCode)
+    }
+    
     @discardableResult public func publish(topic: String, payload: String, completion: @escaping ((Error?) -> ())) -> Int64 {
         let params = RelayJSONRPC.PublishParams(topic: topic, message: payload, ttl: defaultTtl)
         let request = JSONRPCRequest<RelayJSONRPC.PublishParams>(method: RelayJSONRPC.Method.publish.rawValue, params: params)

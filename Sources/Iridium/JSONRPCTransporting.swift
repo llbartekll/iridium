@@ -6,6 +6,7 @@ protocol JSONRPCTransporting {
     var onDisconnect: (()->())? {get set}
     var onMessage: ((String) -> ())? {get set}
     func send(_ string: String, completion: @escaping (Error?)->())
+    func connect()
     func disconnect(closeCode: URLSessionWebSocketTask.CloseCode)
 }
 
