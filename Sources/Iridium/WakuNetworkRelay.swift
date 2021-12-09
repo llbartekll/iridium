@@ -25,16 +25,16 @@ public final class WakuNetworkRelay {
         requestAcknowledgePublisherSubject.eraseToAnyPublisher()
     }
     private let requestAcknowledgePublisherSubject = PassthroughSubject<JSONRPCResponse<Bool>, Never>()
-    private let logger: ConsoleLogger
+    private let logger: ConsoleLogging
     
     init(transport: JSONRPCTransporting,
-         logger: ConsoleLogger) {
+         logger: ConsoleLogging) {
         self.logger = logger
         self.transport = transport
         setUpBindings()
     }
     
-    public convenience init(logger: ConsoleLogger, url: URL) {
+    public convenience init(logger: ConsoleLogging, url: URL) {
         self.init(transport: JSONRPCTransport(url: url), logger: logger)
     }
     
@@ -164,7 +164,7 @@ public final class WakuNetworkRelay {
         }
     }
     
-    static func makeRelayUrl(host: String, apiKey: String) -> URL {
+    static public func makeRelayUrl(host: String, apiKey: String) -> URL {
         var components = URLComponents()
         components.scheme = "wss"
         components.host = host
